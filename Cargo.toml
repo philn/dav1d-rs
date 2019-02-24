@@ -1,0 +1,9 @@
+[package]
+name = "dav1d"
+version = "0.1.0"
+authors = ["Philippe Normand <philn@igalia.com>"]
+edition = "2018"
+
+[dependencies]
+dav1d-sys = "0.1.2"
+failure = "0.1.5"
