@@ -64,9 +64,10 @@ impl Context {
             let mut pictures: Vec<Picture> = vec![];
             loop {
                 let mut dpic: ffi::Dav1dPicture = mem::zeroed();
-                let mut pic: Picture = mem::uninitialized();
                 let ret = ffi::dav1d_get_picture(self.dec, &mut dpic);
-                pic.pic = rc::Rc::new(dpic);
+                let pic = Picture {
+                    pic: rc::Rc::new(dpic),
+                };
                 if ret == -(ffi::EAGAIN as i32) {
                     // return Err(Dav1dError::DecodeError {
                     //     name: "Not enough data".to_string(),
