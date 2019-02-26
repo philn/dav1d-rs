@@ -4,6 +4,7 @@ extern crate failure;
 
 pub mod context;
 
+pub use context::BitsPerComponent;
 pub use context::Context;
 pub use context::Picture;
 pub use context::PixelLayout;

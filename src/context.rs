@@ -1,6 +1,6 @@
 use ffi;
 use std::ffi::c_void;
-use std::{mem, ptr, rc};
+use std::{i64, mem, ptr, rc};
 
 use failure::Error;
 
@@ -95,6 +95,9 @@ pub enum PixelLayout {
     Unknown,
 }
 
+#[derive(Debug)]
+pub struct BitsPerComponent(pub usize);
+
 impl Picture {
     pub fn stride(&self, component: usize) -> i32 {
         (*self.pic).stride[component] as i32
@@ -106,6 +109,17 @@ impl Picture {
 
     pub fn bit_depth(&self) -> usize {
         (*self.pic).p.bpc as usize
+    }
+
+    pub fn bits_per_component(&self) -> BitsPerComponent {
+        unsafe {
+            match (*(*self.pic).seq_hdr).hbd {
+                0 => BitsPerComponent(8),
+                1 => BitsPerComponent(10),
+                2 => BitsPerComponent(12),
+                _ => BitsPerComponent(0),
+            }
+        }
     }
 
     pub fn width(&self) -> u32 {
@@ -124,6 +138,19 @@ impl Picture {
             ffi::Dav1dPixelLayout_DAV1D_PIXEL_LAYOUT_I444 => PixelLayout::I444,
             _ => PixelLayout::Unknown,
         }
+    }
+
+    pub fn timestamp(&self) -> Option<i64> {
+        let ts = (*self.pic).m.timestamp;
+        if ts == i64::MIN {
+            None
+        } else {
+            Some(ts)
+        }
+    }
+
+    pub fn duration(&self) -> i64 {
+        (*self.pic).m.duration as i64
     }
 }
 
