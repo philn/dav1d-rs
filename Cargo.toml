@@ -5,5 +5,5 @@ authors = ["Philippe Normand <philn@igalia.com>"]
 edition = "2018"
 
 [dependencies]
-dav1d-sys = "0.1.2"
+dav1d-sys = "0.2.0"
 failure = "0.1.5"

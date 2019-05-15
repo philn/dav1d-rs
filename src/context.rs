@@ -19,6 +19,12 @@ pub struct Picture {
     pic: rc::Rc<ffi::Dav1dPicture>,
 }
 
+impl Default for Context {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Context {
     pub fn new() -> Self {
         unsafe {
@@ -56,7 +62,7 @@ impl Context {
             ptr::copy_nonoverlapping(data.as_ptr(), ptr, data.len());
             let ret = ffi::dav1d_send_data(self.dec, &mut data_wrapper);
             // println!("Decode result {}", ret);
-            if ret != 0 {
+            if ret < 0 {
                 return Err(Dav1dError::DecodeError {
                     name: "Data can't be consumed".to_string(),
                 });
@@ -95,7 +101,7 @@ pub enum PixelLayout {
     Unknown,
 }
 
-#[derive(Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct BitsPerComponent(pub usize);
 
 impl Picture {
@@ -111,13 +117,13 @@ impl Picture {
         (*self.pic).p.bpc as usize
     }
 
-    pub fn bits_per_component(&self) -> BitsPerComponent {
+    pub fn bits_per_component(&self) -> Option<BitsPerComponent> {
         unsafe {
             match (*(*self.pic).seq_hdr).hbd {
-                0 => BitsPerComponent(8),
-                1 => BitsPerComponent(10),
-                2 => BitsPerComponent(12),
-                _ => BitsPerComponent(0),
+                0 => Some(BitsPerComponent(8)),
+                1 => Some(BitsPerComponent(10)),
+                2 => Some(BitsPerComponent(12)),
+                _ => None,
             }
         }
     }
